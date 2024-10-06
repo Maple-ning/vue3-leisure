@@ -1,0 +1,48 @@
+// Mixins
+@use "./mixins.scss" as *;
+// Font
+@use "./font.scss" as *;
+// Colors
+@use "./color.scss";
+
+// 业务页面几乎都应该在根元素上挂载 class="app-container"，以保持页面美观
+.app-container {
+  padding: 20px;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  @extend %scrollbar;
+}
+
+ul,
+ol,
+li {
+  list-style: none;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a,
+a:focus,
+a:hover {
+  color: inherit;
+  outline: none;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}

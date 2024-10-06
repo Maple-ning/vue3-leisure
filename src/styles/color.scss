@@ -1,0 +1,24 @@
+:root {
+  --website-logo-bg: rgb(240, 240, 240);
+  --website-sidebar-bg: rgb(240, 240, 240);
+  --website-text-primary: #333;
+  --website-text-desc: rgb(163, 163, 163);
+  --website-item-hover: rgb(222, 222, 222);
+  --website-scrollbar: rgba(0, 0, 0, 0.2);
+  --website-topbar-bg: rgb(240, 240, 240);
+  --website-bottombar-bg: rgb(240, 240, 240);
+  --website-bottombar-boxshadow: rgba(0, 0, 0, 0.2);
+}
+
+// 夜间模式下的颜色
+html.dark {
+  --website-logo-bg: lightgreen;
+  --website-sidebar-bg: rgb(10, 10, 10);
+  --website-text-primary: #fff;
+  --website-text-desc: rgb(93, 93, 93);
+  --website-item-hover: skyblue;
+  --website-scrollbar: #fff;
+  --website-topbar-bg: rgb(10, 10, 10);
+  --website-bottombar-bg: rgb(10, 10, 10);
+  --website-bottombar-boxshadow: rgb(10, 10, 10);
+}

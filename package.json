@@ -1,0 +1,42 @@
+{
+  "name": "vue3-remember",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@types/node": "^22.5.5",
+    "@vueuse/core": "^11.1.0",
+    "animate.css": "^4.1.1",
+    "element-plus": "^2.8.3",
+    "element-resize-detector": "^1.2.4",
+    "lodash": "^4.17.21",
+    "normalize.css": "^8.0.1",
+    "pinia": "^2.2.4",
+    "sass": "1.77.8",
+    "swiper": "^11.1.14",
+    "use-element-plus-theme": "^0.0.5",
+    "vite-svg-loader": "^5.1.0",
+    "vue": "^3.4.37",
+    "vue-router": "^4.4.5",
+    "vue3-seamless-scroll": "^2.0.1"
+  },
+  "devDependencies": {
+    "@iconify-json/ep": "^1.2.0",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "fast-glob": "^3.3.2",
+    "typescript": "^5.5.3",
+    "unplugin-auto-import": "^0.18.3",
+    "unplugin-element-plus": "^0.8.0",
+    "unplugin-icons": "^0.19.3",
+    "unplugin-vue-components": "^0.27.4",
+    "vite": "^5.4.1",
+    "vite-plugin-svg-icons": "^2.0.1",
+    "vue-tsc": "^2.0.29"
+  }
+}

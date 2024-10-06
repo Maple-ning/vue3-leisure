@@ -1,0 +1,82 @@
+// 清除浮动
+%clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+// 美化滚动条--正常显示
+%scrollbar {
+  // 整个滚动条
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  // 滚动条上的滚动滑块
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #90939955;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #90939977;
+  }
+  &::-webkit-scrollbar-thumb:active {
+    background-color: #90939999;
+  }
+  // 当同时有垂直滚动条和水平滚动条时交汇的部分
+  &::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+}
+
+// 默认不显示，鼠标悬浮显示--隐藏滚动条
+%hiddenScollbar {
+  // 整个滚动条
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  // 滚动条上的滚动滑块
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 0;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background-color: var(--website-scrollbar);
+  }
+}
+
+// 文本溢出时显示省略号
+%ellipsis {
+  // 隐藏溢出的文本
+  overflow: hidden;
+  // 防止文本换行
+  white-space: nowrap;
+  // 文本内容溢出容器时，文本末尾显示省略号
+  text-overflow: ellipsis;
+}
+
+// 所有单项悬浮统一淡灰背景
+%itemHoverBack {
+  padding: 0;
+  & li {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    padding: 4px;
+    cursor: pointer;
+  }
+  & li + li {
+    margin-top: 10px;
+  }
+  & li:hover {
+    border-radius: 4px;
+    background-color: var(--website-item-hover);
+  }
+}
