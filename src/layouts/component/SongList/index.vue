@@ -1,41 +1,16 @@
 <script setup lang="ts">
-const props = defineProps<{ selectPath: string }>();
+import { useMySongListStore } from "@/store/modules/mySongList";
+import { storeToRefs } from "pinia";
+
+defineProps<{ selectPath: string }>();
 
 const emit = defineEmits(["changePath"]);
 
-const arr = [
-  {
-    name: "周杰伦",
-    id: 1,
-  },
-  {
-    name: "林俊杰",
-    id: 2,
-  },
-  {
-    name: "泰勒",
-    id: 3,
-  },
-  {
-    name: "情歌",
-    id: 4,
-  },
-  {
-    name: "英文歌",
-    id: 5,
-  },
-  {
-    name: "汪苏泷",
-    id: 6,
-  },
-  {
-    name: "徐良",
-    id: "7",
-  },
-];
+const mySongListStore = useMySongListStore();
+const { mySongList } = storeToRefs(mySongListStore);
 
-const changePath = (item) => {
-  emit("changePath", "songlist/" + item);
+const changePath = (id: number) => {
+  emit("changePath", "mySongList/" + id);
 };
 </script>
 
@@ -47,8 +22,12 @@ const changePath = (item) => {
     </div>
   </div>
   <ul class="song-list-container">
-    <li v-for="item in arr" :key="item.id" @click="changePath(item.id)">
-      {{ item.name }}
+    <li
+      v-for="songList in mySongList"
+      :key="songList.id"
+      @click="changePath(songList.id)"
+    >
+      {{ songList.albumName }}
     </li>
   </ul>
 </template>
@@ -57,7 +36,6 @@ const changePath = (item) => {
 @import "@/styles/mixins.scss";
 
 .top-tab {
-  margin-top: 30px;
   line-height: 32px;
   display: flex;
   position: relative;
@@ -81,7 +59,6 @@ const changePath = (item) => {
   cursor: pointer;
 }
 .song-list-container {
-  min-height: 600px;
   @extend %itemHoverBack;
 }
 </style>

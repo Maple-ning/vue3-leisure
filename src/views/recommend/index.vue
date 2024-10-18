@@ -1,122 +1,30 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import peaches from "@/assets/images/peaches.jpg";
+import { ref } from "vue";
 import RollImages from "@/components/RollImages/index.vue";
+import { useMySongListStore } from "@/store/modules/mySongList";
+import { storeToRefs } from "pinia";
 
-const mainList = [
-  {
-    songName: "爱你",
-    singerName: "邓紫棋",
-    pictureUrl: peaches,
-    from: "猜你喜欢",
-  },
-  {
-    songName: "悬溺",
-    singerName: "葛东琪",
-    pictureUrl: peaches,
-    from: "猜你喜欢",
-  },
-  {
-    songName: "夏夜最后的烟火",
-    singerName: "颜人中",
-    pictureUrl: peaches,
-    from: "猜你喜欢",
-  },
-  {
-    songName: "Peaches",
-    singerName: "Justin Bieber",
-    pictureUrl: peaches,
-    from: "猜你喜欢",
-  },
-  {
-    songName: "爱错",
-    singerName: "王力宏",
-    pictureUrl: peaches,
-    from: "猜你喜欢",
-  },
-];
+const mySongListStore = useMySongListStore();
+const { mySongList } = storeToRefs(mySongListStore);
 
-const treasureList = [
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-  {
-    pictureUrl: peaches,
-    desc: "热门精选",
-  },
-];
+const mainList = ref<AlbumData>(); /** 主要推荐歌单 */
+mainList.value = mySongList.value.slice(0, 4);
+const mainText = (main: AlbumData) => {
+  if (!main.songList.length) {
+    return "--";
+  }
+  const firstItem = main.songList[0];
+  return firstItem.songName + " - " + firstItem.singerName;
+};
 
-const images = [
-  {
-    name: "test",
-    url: peaches,
-  },
-  {
-    name: "test",
-    url: peaches,
-  },
-  {
-    name: "test",
-    url: peaches,
-  },
-  {
-    name: "test",
-    url: peaches,
-  },
-  {
-    name: "test",
-    url: peaches,
-  },
-  {
-    name: "test",
-    url: peaches,
-  },
-  {
-    name: "test",
-    url: peaches,
-  },
-];
+const treasureList = ref<AlbumData>(); /** 宝藏歌单 */
+treasureList.value = mySongList.value;
+
+const songRecommendList = ref<Array<SongObjData>>([]); /** 根据喜欢推荐的歌曲 */
+songRecommendList.value = mySongList.value[0].songList;
+
+const rollList = ref<AlbumData>(); /** 滚动歌单 */
+rollList.value = mySongList.value;
 </script>
 
 <template>
@@ -125,17 +33,20 @@ const images = [
       <div class="recommend-title">Hi，今日为你推荐。</div>
       <div class="recommend-main">
         <div
-          class="recommend-main-item"
-          v-for="(main, mainIndex) in mainList"
-          :key="mainIndex"
-          :class="{ 'pick-item': mainIndex === 0 }"
+          class="recommend-main-item relative-item"
+          v-for="main in mainList"
+          :key="main.id"
         >
-          <el-image class="main-picture" :src="main.pictureUrl" fit="fill" />
+          <PlayImage
+            class="main-picture"
+            :src="main.imgUrl"
+            :song="main.songList[0]"
+          />
           <div class="main-text">
             <div class="main-text-name">
-              {{ main.songName }} - {{ main.singerName }}
+              {{ mainText(main) }}
             </div>
-            <div class="main-text-from">{{ main.from }}</div>
+            <!--<div class="main-text-from">{{ main.from }}</div>-->
           </div>
         </div>
       </div>
@@ -144,34 +55,44 @@ const images = [
       <div class="recommend-title">歌单宝藏库</div>
       <div class="recommend-treasure">
         <div
-          class="recommend-treasure-item"
+          class="recommend-treasure-item relative-item"
           v-for="(treasure, treasureIndex) in treasureList"
-          :key="treasureIndex"
+          :key="'treasure' + treasureIndex"
         >
-          <el-image
+          <PlayImage
             class="treasure-picture"
-            :src="treasure.pictureUrl"
-            fit="fill"
+            :src="treasure.imgUrl"
+            :song="treasure.songList[0]"
           />
-          <div class="tresure-desc">{{ treasure.desc }}</div>
+
+          <div class="tresure-desc">{{ treasure.albumName }}</div>
         </div>
       </div>
     </div>
     <div class="recommend-part">
-      <div class="recommend-title">听【爱你】的也在听</div>
+      <div class="recommend-title">根据您的喜欢为您推荐</div>
       <div class="recommend-close">
-        <div class="recommend-close-item" v-for="item in 9" :key="item">
-          <el-image class="close-picture" :src="peaches" fit="fill" />
+        <div
+          class="recommend-close-item relative-item"
+          v-for="(recommendSong, recommendIndex) in songRecommendList"
+          :key="'recommend' + recommendIndex"
+        >
+          <PlayImage
+            class="close-picture"
+            :src="recommendSong.imgUrl"
+            :play-size="30"
+            :song="recommendSong"
+          />
           <div class="close-text">
-            <div class="close-song-name">AYou</div>
-            <div class="close-singer-name">小妹</div>
+            <div class="close-song-name">{{ recommendSong.songName }}</div>
+            <div class="close-singer-name">{{ recommendSong.singerName }}</div>
           </div>
         </div>
       </div>
     </div>
     <div class="recommend-part">
       <div class="recommend-title">歌单滚轮</div>
-      <RollImages :images="images" />
+      <RollImages :Albums="rollList" />
     </div>
     <div style="height: 50px"></div>
   </div>
@@ -201,6 +122,9 @@ const images = [
     flex: 1;
     &:hover {
       transform: translateY(-10px);
+    }
+    &:hover .play-button {
+      display: block;
     }
   }
   .main-picture {

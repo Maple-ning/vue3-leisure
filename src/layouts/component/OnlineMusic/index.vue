@@ -26,11 +26,6 @@ const arr = [
     icon: "video",
     path: "video",
   },
-  {
-    title: "雷达",
-    icon: "radar",
-    path: "radar",
-  },
 ];
 
 const changePath = (path: string) => {

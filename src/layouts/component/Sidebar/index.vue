@@ -2,13 +2,19 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { Logo, OnlineMusic, MyMusic, SongList } from "../";
+import { useUserStore } from "@/store/modules/user";
+import { useSidebarStore } from "@/store/modules/sidebar";
+import { storeToRefs } from "pinia";
 
 const router = useRouter();
+const userStore = useUserStore();
+const { token } = storeToRefs(userStore);
 
-const selectPath = ref<string>("recommend");
+const sidebarStore = useSidebarStore();
+const { pickPath } = storeToRefs(sidebarStore);
 
 const changePath = (data: string) => {
-  selectPath.value = data;
+  pickPath.value = data;
   router.push("/" + data);
 };
 </script>
@@ -17,9 +23,13 @@ const changePath = (data: string) => {
   <div class="side-container">
     <Logo />
     <div class="sidebar-content">
-      <OnlineMusic :selectPath="selectPath" @changePath="changePath" />
-      <MyMusic :selectPath="selectPath" @changePath="changePath" />
-      <SongList :selectPath="selectPath" @changePath="changePath" />
+      <OnlineMusic :selectPath="pickPath" @changePath="changePath" />
+      <MyMusic :selectPath="pickPath" @changePath="changePath" />
+      <SongList
+        v-if="token !== ''"
+        :selectPath="pickPath"
+        @changePath="changePath"
+      />
     </div>
   </div>
 </template>

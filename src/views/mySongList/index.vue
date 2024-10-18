@@ -1,7 +1,40 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import type { TabsPaneContext } from "element-plus";
 import useTableHeight from "@/hooks/useTableHeight";
+import { useLikeStore } from "@/store/modules/like";
+import { useMySongListStore } from "@/store/modules/mySongList";
+import { usePlayStore } from "@/store/modules/play";
+import { storeToRefs } from "pinia";
+import { useRoute } from "vue-router";
+
+/** 获取歌单id */
+const route = useRoute();
+const songListId = computed(() => Number(route.params.id));
+
+/** 在数据中获取当前歌单信息 */
+const mySongListStore = useMySongListStore();
+const { mySongList } = storeToRefs(mySongListStore);
+
+const songListInfo = computed(() => {
+  if (!songListId.value) {
+    return {};
+  }
+  return mySongList.value.find(
+    (list: AlbumData) => list.id === songListId.value
+  );
+});
+
+const songList = computed(() => {
+  if (Object.keys(songListInfo).length === 0) {
+    return [];
+  }
+  return songListInfo.value.songList;
+});
+
+const playStore = usePlayStore();
+
+const { addSomeSongToPlay, addSongToPlayList } = playStore;
 
 const tableWrapperRef = ref();
 
@@ -13,161 +46,35 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event);
 };
 
-const tableData = [
-  {
-    songName: "喜欢你",
-    singerName: "邓紫棋",
-    isLike: true,
-    albumName: "喜欢你",
-    duration: 190,
-  },
-  {
-    songName: "Blinding Lights",
-    singerName: "The Weeknd",
-    isLike: true,
-    albumName: "After Hours",
-    duration: 200,
-  },
-  {
-    songName: "Levitating",
-    singerName: "Dua Lipa",
-    isLike: true,
-    albumName: "Future Nostalgia",
-    duration: 203,
-  },
-  {
-    songName: "Watermelon Sugar",
-    singerName: "Harry Styles",
-    isLike: false,
-    albumName: "Fine Line",
-    duration: 174,
-  },
-  {
-    songName: "drivers license",
-    singerName: "Olivia Rodrigo",
-    isLike: true,
-    albumName: "SOUR",
-    duration: 242,
-  },
-  {
-    songName: "Peaches",
-    singerName: "Justin Bieber",
-    isLike: true,
-    albumName: "Justice",
-    duration: 198,
-  },
-  {
-    songName: "Good 4 U",
-    singerName: "Olivia Rodrigo",
-    isLike: true,
-    albumName: "SOUR",
-    duration: 178,
-  },
-  {
-    songName: "Stay",
-    singerName: "The Kid LAROI & Justin Bieber",
-    isLike: true,
-    albumName: "F*CK LOVE 3",
-    duration: 141,
-  },
-  {
-    songName: "Kiss Me More",
-    singerName: "Doja Cat feat. SZA",
-    isLike: false,
-    albumName: "Planet Her",
-    duration: 208,
-  },
-  {
-    songName: "Montero (Call Me By Your Name)",
-    singerName: "Lil Nas X",
-    isLike: true,
-    albumName: "MONTERO",
-    duration: 137,
-  },
-  {
-    songName: "Shivers",
-    singerName: "Ed Sheeran",
-    isLike: false,
-    albumName: "Equals",
-    duration: 207,
-  },
-  {
-    songName: "Leave The Door Open",
-    singerName: "Bruno Mars, Anderson .Paak, Silk Sonic",
-    isLike: true,
-    albumName: "An Evening with Silk Sonic",
-    duration: 242,
-  },
-  {
-    songName: "Save Your Tears",
-    singerName: "The Weeknd & Ariana Grande",
-    isLike: true,
-    albumName: "After Hours",
-    duration: 215,
-  },
-  {
-    songName: "Bad Habits",
-    singerName: "Ed Sheeran",
-    isLike: false,
-    albumName: "Equals",
-    duration: 230,
-  },
-  {
-    songName: "Deja Vu",
-    singerName: "Olivia Rodrigo",
-    isLike: true,
-    albumName: "SOUR",
-    duration: 215,
-  },
-  {
-    songName: "Take My Breath",
-    singerName: "The Weeknd",
-    isLike: true,
-    albumName: "After Hours",
-    duration: 220,
-  },
-  {
-    songName: "Heat Waves",
-    singerName: "Glass Animals",
-    isLike: true,
-    albumName: "Dreamland",
-    duration: 238,
-  },
-  {
-    songName: "Butter",
-    singerName: "BTS",
-    isLike: false,
-    albumName: "Butter",
-    duration: 165,
-  },
-  {
-    songName: "Industry Baby",
-    singerName: "Lil Nas X & Jack Harlow",
-    isLike: true,
-    albumName: "MONTERO",
-    duration: 212,
-  },
-  {
-    songName: "Don't Go Yet",
-    singerName: "Camila Cabello",
-    isLike: true,
-    albumName: "Familia",
-    duration: 189,
-  },
-  {
-    songName: "Falling",
-    singerName: "Harry Styles",
-    isLike: true,
-    albumName: "Fine Line",
-    duration: 240,
-  },
-];
+const playSong = (song: SongObjData) => {
+  addSongToPlayList(song);
+};
+
+const playAll = () => {
+  if (!songList.value.length) {
+    return false;
+  }
+  addSomeSongToPlay(songList.value);
+};
+
+const likeStore = useLikeStore();
+const { addLikeList, deleteById } = likeStore;
+
+const changeLikeHandle = (song: SongObjData) => {
+  song.isLike ? changeDislike(song) : changeLike(song);
+};
+
+const changeLike = (song: SongObjData) => {
+  song.isLike = true;
+  addLikeList(song);
+};
+const changeDislike = (song: SongObjData) => {
+  song.isLike = false;
+  deleteById(song.id);
+};
+
 const url =
   "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg";
-
-const sortByChinese = (a, b) => {
-  return a.name.localeCompare(b.name, "zh-Hans-CN");
-};
 
 const formatTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
@@ -183,16 +90,16 @@ const formatTime = (seconds: number): string => {
     <div class="top-song-info">
       <el-image class="album-picture" :src="url" fit="fill" />
       <div class="album-info">
-        <div class="album-name">休闲歌单</div>
-        <div class="album-desc">这是一段描述</div>
+        <div class="album-name">{{ songListInfo.albumName }}</div>
+        <div class="album-desc">{{ songListInfo.albumDesc }}</div>
         <div class="button-group">
-          <div class="button-item">
+          <div class="button-item" @click="playAll">
             <SvgIcon name="play" />
             播放
           </div>
           <div class="button-item">
             <SvgIcon name="share" />
-            播放
+            分享
           </div>
         </div>
       </div>
@@ -208,23 +115,26 @@ const formatTime = (seconds: number): string => {
     </el-tabs>
     <div class="song-info-list" ref="tableWrapperRef">
       <el-table
-        :data="tableData"
+        :data="songList"
         :default-sort="{ prop: 'songName', order: 'ascending' }"
         :height="tableHeight"
+        :row-class-name="'song-table-row'"
         style="width: 100%"
       >
         <el-table-column
           prop="name"
           :sortable="true"
-          :sort-method="sortByChinese"
           label="歌名/歌手"
           min-width="300"
         >
           <template #default="scope">
             <div class="song-info">
+              <div class="play-button" @click="playSong(scope.row)">
+                <SvgIcon name="playButton" />
+              </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="url"
+                :src="scope.row.imgUrl"
                 fit="fill"
               />
               <div class="song-info-item">
@@ -239,7 +149,7 @@ const formatTime = (seconds: number): string => {
             <div class="evaluate-icon">
               <SvgIcon
                 :name="scope.row.isLike ? 'redLike' : 'like'"
-                @click="scope.row.isLike = !scope.row.isLike"
+                @click="changeLikeHandle(scope.row)"
               />
             </div>
           </template>
@@ -320,8 +230,28 @@ const formatTime = (seconds: number): string => {
 .song-info-list {
   flex: 1;
 }
+.song-table-row:hover .play-button {
+  display: block;
+}
 .song-info {
+  position: relative;
   display: flex;
+  .play-button {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    color: white;
+    &:hover {
+      color: green;
+    }
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
   .song-info-item {
     margin-left: 20px;
   }

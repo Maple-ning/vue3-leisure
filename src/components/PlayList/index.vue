@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { DrawerProps } from "element-plus";
+import { usePlayStore } from "@/store/modules/play";
+import { storeToRefs } from "pinia";
 import peaches from "@/assets/images/peaches.jpg";
+
+const store = usePlayStore();
+const { songList } = storeToRefs(store);
+
+const playSong = (songId: number) => {
+  store.setCurrentSongById(songId);
+};
 
 defineProps({ size: { type: Number, default: 400 }, title: { type: String } });
 
@@ -25,13 +34,16 @@ const handleClose = () => {
       <template #header>
         <span class="drawer-title">{{ title }}</span>
       </template>
-      <div class="list-num">共0首歌曲</div>
+      <div class="list-num">共{{ songList.length }}首歌曲</div>
       <div class="list-container">
-        <div class="song-item" v-for="item in 10" :key="item">
+        <div class="song-item" v-for="song in songList" :key="song.id">
           <el-image class="song-image" :src="peaches" fit="fill" />
+          <div class="play-button" @click="playSong(song.id)">
+            <SvgIcon name="playButton" />
+          </div>
           <div class="song-info">
-            <div class="song-name">在你身边</div>
-            <div class="singer-name">盛喆</div>
+            <div class="song-name">{{ song.songName }}</div>
+            <div class="singer-name">{{ song.singerName }}</div>
           </div>
         </div>
       </div>
@@ -68,8 +80,28 @@ const handleClose = () => {
     padding: 10px;
     height: 60px;
     border-radius: 4px;
+    position: relative;
+    .play-button {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 30px;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      color: white;
+      &:hover {
+        color: green;
+      }
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
     &:hover {
       background-color: var(--website-item-hover);
+    }
+    &:hover .play-button {
+      display: block;
     }
     &:not(.last-child) {
       margin-bottom: 10px;

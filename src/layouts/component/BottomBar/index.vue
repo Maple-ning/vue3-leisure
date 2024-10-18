@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import MusicProgressBar from "@/components/MusicProgressBar/index.vue";
+import { ref, unref, computed } from "vue";
+import { ClickOutside as vClickOutside } from "element-plus";
+import { MusicPlay } from "..";
+import { usePlayStore } from "@/store/modules/play";
+import { storeToRefs } from "pinia";
 import PlayList from "@/components/PlayList/index.vue";
 import peaches from "@/assets/images/peaches.jpg";
+
+const playStore = usePlayStore();
+
+const { currentSong, playVolume, isPause } = storeToRefs(playStore);
+
+const MusicPlayRef = ref();
 
 const isOpen = ref<boolean>(true);
 
@@ -10,10 +19,9 @@ const changeOpen = (status: boolean): void => {
   isOpen.value = status;
 };
 
-const isListening = ref<boolean>(false);
-
 const changeListen = (status: boolean): void => {
-  isListening.value = status;
+  isPause.value = status;
+  status ? MusicPlayRef.value?.playSong() : MusicPlayRef.value?.playPause();
 };
 
 const drawerVisible = ref<boolean>(false);
@@ -21,31 +29,61 @@ const drawerVisible = ref<boolean>(false);
 const OpenPlayList = () => {
   drawerVisible.value = true;
 };
+
+const playPrevSong = () => {
+  MusicPlayRef.value?.playPrev();
+};
+
+const playNextSong = () => {
+  MusicPlayRef.value?.playNext();
+};
+
+const buttonRef = ref();
+const popoverRef = ref();
+const onClickOutside = () => {
+  unref(popoverRef).popperRef?.delayHide?.();
+};
+
+const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
 </script>
 
 <template>
   <div
+    v-if="currentSong"
     class="bottom-bar-container fixed-bottom"
     :class="{ 'close-bar': !isOpen }"
   >
     <div class="listen-bar" v-if="isOpen">
       <div class="song-info">
         <el-image class="song-image" :src="peaches" fit="fill" />
-        <div class="song-text">
-          <div class="song-name">我太笨</div>
-          <div class="singer-name">锤娜丽莎</div>
+        <div class="song-text" v-if="currentSong">
+          <div class="song-name">{{ currentSong.songName }}</div>
+          <div class="singer-name">{{ currentSong.singerName }}</div>
         </div>
         <div class="operate-wrapper">
-          <MusicProgressBar />
+          <MusicPlay ref="MusicPlayRef" />
           <div class="button-group">
-            <SvgIcon name="prev" />
+            <SvgIcon class="order-icon visible-item" name="order" />
+            <SvgIcon name="prev" @click="playPrevSong" />
             <SvgIcon
-              v-if="isListening"
-              @click="changeListen(false)"
+              v-if="isPause"
+              class="center-icon"
+              @click="changeListen(true)"
               name="playing"
             />
-            <SvgIcon v-else @click="changeListen(true)" name="listening" />
-            <SvgIcon name="next" />
+            <SvgIcon
+              class="center-icon"
+              v-else
+              @click="changeListen(false)"
+              name="listening"
+            />
+            <SvgIcon name="next" @click="playNextSong" />
+            <SvgIcon
+              class="volume-icon visible-item"
+              name="volume"
+              ref="buttonRef"
+              v-click-outside="onClickOutside"
+            />
           </div>
         </div>
       </div>
@@ -61,8 +99,36 @@ const OpenPlayList = () => {
       name="upopen"
     />
   </div>
+  <el-popover
+    ref="popoverRef"
+    :virtual-ref="buttonRef"
+    popper-class="volume-popup"
+    trigger="click"
+    :width="50"
+    virtual-triggering
+  >
+    <el-slider
+      v-model="playVolume"
+      :show-tooltip="false"
+      :min="0"
+      :max="1"
+      :step="0.01"
+      vertical
+      height="100px"
+    />
+    <div class="volume-num">{{ volumeText }}</div>
+  </el-popover>
   <PlayList v-model="drawerVisible" title="播放队列" />
 </template>
+
+<style lang="scss">
+.el-popover.volume-popup {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+</style>
 
 <style lang="scss" scoped>
 .fixed-bottom {
@@ -70,7 +136,6 @@ const OpenPlayList = () => {
   position: fixed;
   bottom: 0;
   width: 100%;
-  padding: 10px;
   z-index: 999;
   background-color: var(--website-bottombar-bg);
   box-shadow: 0 -8px 15px var(--website-bottombar-boxshadow);
@@ -81,6 +146,7 @@ const OpenPlayList = () => {
 .listen-bar {
   display: flex;
   height: 60px;
+  padding: 10px;
   position: relative;
   .song-info {
     display: flex;
@@ -97,27 +163,35 @@ const OpenPlayList = () => {
   }
   .operate-wrapper {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 500px;
-    height: 40px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
-    align-items: flex-end;
+    justify-content: center;
+    align-items: center;
   }
   .button-group {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    height: 100%;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     > svg {
       width: 25px;
       height: 25px;
       cursor: pointer;
+      &:hover {
+        color: green;
+      }
     }
-    svg:nth-child(2) {
+    .center-icon {
       margin: 0 20px;
+    }
+    .order-icon {
+      margin-right: 25px;
+    }
+    .volume-icon {
+      margin-left: 25px;
     }
   }
 }
@@ -149,5 +223,18 @@ const OpenPlayList = () => {
 .packup-button {
   width: 18px;
   height: 18px;
+}
+
+.visible-item {
+  display: none;
+}
+
+.operate-wrapper:hover .visible-item {
+  display: block;
+}
+
+.volume-num {
+  margin-top: 20px;
+  font-size: 16px;
 }
 </style>

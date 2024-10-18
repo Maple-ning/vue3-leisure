@@ -4,16 +4,11 @@ import { Navigation, Pagination, Autoplay, A11y } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-const modules = [Autoplay, Pagination, Navigation, A11y];
-
-interface image {
-  name: string;
-  url: string;
-}
+const modules = [Autoplay, Navigation, A11y];
 
 const props = defineProps({
-  images: {
-    type: Array<image>,
+  Albums: {
+    type: Array<AlbumData>,
   },
 });
 </script>
@@ -35,8 +30,9 @@ const props = defineProps({
       :navigation="true"
       :modules="modules"
     >
-      <swiper-slide v-for="(item, key) in props.images" :key="key">
-        <el-image w-full :src="item.url" fit="fill" />
+      <swiper-slide v-for="item in props.Albums" :key="item.id">
+        <PlayImage :src="item.imgUrl" :song="item.songList[0]" />
+        <div class="swiper-text">{{ item.albumName }}</div>
       </swiper-slide>
     </swiper>
   </div>
@@ -48,6 +44,10 @@ const props = defineProps({
 }
 .swiper {
   padding: 20px 0;
+}
+.swiper-text {
+  text-align: center;
+  line-height: 32px;
 }
 :deep(.swiper-slide) {
   cursor: pointer;

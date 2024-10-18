@@ -15,6 +15,9 @@ import "element-plus/dist/index.css";
 import "element-plus/theme-chalk/dark/css-vars.css";
 import "@/styles/index.scss";
 
+// 全局注册的组件
+import PlayImage from "@/components/PlayImage/index.vue";
+
 const app = createApp(App);
 
 // 加载插件
@@ -23,6 +26,7 @@ loadPlugins(app);
 loadSvg(app);
 
 app.use(store).use(router);
+app.component(PlayImage);
 router.isReady().then(() => {
   app.mount("#app");
 });

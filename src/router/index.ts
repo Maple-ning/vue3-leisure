@@ -41,16 +41,6 @@ export const constantRoutes: RouteRecordRaw[] = [
     redirect: "/recommend",
     children: [
       {
-        path: "buy",
-        name: "Buy",
-        component: () => import("@/views/buy/index.vue"),
-        meta: {
-          title: "已购音乐",
-          svgIcon: "buy",
-          affix: true,
-        },
-      },
-      {
         path: "like",
         name: "Like",
         component: () => import("@/views/like/index.vue"),
@@ -77,16 +67,6 @@ export const constantRoutes: RouteRecordRaw[] = [
         meta: {
           title: "最近播放",
           svgIcon: "download",
-          affix: true,
-        },
-      },
-      {
-        path: "list",
-        name: "List",
-        component: () => import("@/views/list/index.vue"),
-        meta: {
-          title: "试听列表",
-          svgIcon: "list",
           affix: true,
         },
       },
@@ -121,18 +101,8 @@ export const constantRoutes: RouteRecordRaw[] = [
         },
       },
       {
-        path: "radar",
-        name: "Radar",
-        component: () => import("@/views/radar/index.vue"),
-        meta: {
-          title: "雷达",
-          svgIcon: "radar",
-          affix: true,
-        },
-      },
-      {
-        path: "songlist/:id",
-        component: () => import("@/views/songlist/index.vue"),
+        path: "mySongList/:id",
+        component: () => import("@/views/mySongList/index.vue"),
       },
     ],
   },

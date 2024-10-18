@@ -26,16 +26,6 @@ const arr = [
     icon: "download",
     path: "download",
   },
-  {
-    title: "已购音乐",
-    icon: "buy",
-    path: "buy",
-  },
-  {
-    title: "视听列表",
-    icon: "list",
-    path: "list",
-  },
 ];
 
 const changePath = (path: string) => {
