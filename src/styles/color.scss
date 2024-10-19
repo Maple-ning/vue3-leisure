@@ -8,6 +8,7 @@
   --website-topbar-bg: rgb(240, 240, 240);
   --website-bottombar-bg: rgb(240, 240, 240);
   --website-bottombar-boxshadow: rgba(0, 0, 0, 0.2);
+  --website-border: white;
 }
 
 // 夜间模式下的颜色
@@ -21,4 +22,5 @@ html.dark {
   --website-topbar-bg: rgb(10, 10, 10);
   --website-bottombar-bg: rgb(10, 10, 10);
   --website-bottombar-boxshadow: rgb(10, 10, 10);
+  --website-border: white;
 }

@@ -47,11 +47,12 @@ function handleClick(item: MenuData) {
 .context-menu {
   position: absolute;
   z-index: 999;
-  background-color: white;
+  background-color: var(--website-sidebar-bg);
   width: 100px;
   padding: 6px 0;
   border-radius: 4px;
   box-shadow: var(--el-box-shadow-light);
+  border: 1px solid var(--website-border);
   font-size: 14px;
   .menu-item {
     padding-left: 10px;
