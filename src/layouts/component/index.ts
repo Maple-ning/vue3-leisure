@@ -5,7 +5,6 @@ export { default as OnlineMusic } from "./OnlineMusic/index.vue";
 export { default as MyMusic } from "./MyMusic/index.vue";
 export { default as Topbar } from "./Topbar/index.vue";
 export { default as ButtonGroup } from "./ButtonGroup/index.vue";
-export { default as Avatar } from "./Avatar/index.vue";
 export { default as AppMain } from "./AppMain.vue";
 export { default as MusicPlay } from "./MusicPlay/index.vue";
 export { default as BottomBar } from "./BottomBar/index.vue";

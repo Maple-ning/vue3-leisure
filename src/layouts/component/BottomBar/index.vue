@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, unref, computed } from "vue";
-import { ClickOutside as vClickOutside } from "element-plus";
 import { MusicPlay } from "..";
 import { usePlayStore } from "@/store/modules/play";
 import { storeToRefs } from "pinia";
@@ -38,13 +37,46 @@ const playNextSong = () => {
   MusicPlayRef.value?.playNext();
 };
 
-const buttonRef = ref();
-const popoverRef = ref();
-const onClickOutside = () => {
-  unref(popoverRef).popperRef?.delayHide?.();
+const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
+
+/** 控制音量调节和播放顺序规则的图标显示与隐藏 */
+const isIconDisplay = ref<boolean>(false);
+const toggleIconDisplay = (status: boolean) => {
+  /** 如果弹出框还没关掉 不变 */
+  if (!isPopoverShow.value && !isOrderPopoverShow.value) {
+    isIconDisplay.value = status;
+  }
 };
 
-const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
+/** 音量调节弹出框的显示 */
+const isPopoverShow = ref<boolean>(false);
+const volumePopShow = () => {
+  isPopoverShow.value = true;
+};
+const volumePopHide = () => {
+  isPopoverShow.value = false;
+};
+const changePopover = () => {
+  if (isOrderPopoverShow.value) {
+    isOrderPopoverShow.value = false;
+  }
+  isPopoverShow.value = !isPopoverShow.value;
+};
+
+/** 顺序弹出框的显示 */
+const isOrderPopoverShow = ref<boolean>(false);
+const orderPopShow = () => {
+  isOrderPopoverShow.value = true;
+};
+const orderPopHide = () => {
+  isOrderPopoverShow.value = false;
+};
+const changeOrderPopover = () => {
+  if (isPopoverShow.value) {
+    isPopoverShow.value = false;
+  }
+  isOrderPopoverShow.value = !isOrderPopoverShow.value;
+};
 </script>
 
 <template>
@@ -52,6 +84,8 @@ const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
     v-if="currentSong"
     class="bottom-bar-container fixed-bottom"
     :class="{ 'close-bar': !isOpen }"
+    @mouseenter="toggleIconDisplay(true)"
+    @mouseleave="toggleIconDisplay(false)"
   >
     <div class="listen-bar" v-if="isOpen">
       <div class="song-info">
@@ -63,7 +97,38 @@ const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
         <div class="operate-wrapper">
           <MusicPlay ref="MusicPlayRef" />
           <div class="button-group">
-            <SvgIcon class="order-icon visible-item" name="order" />
+            <el-popover
+              trigger="click"
+              placement="bottom"
+              popper-class="order-popup"
+              :width="100"
+              @show="orderPopShow"
+              @hide="orderPopHide"
+            >
+              <template #reference>
+                <SvgIcon
+                  v-show="isIconDisplay"
+                  class="order-icon"
+                  name="order"
+                  @click="changeOrderPopover"
+                />
+              </template>
+              <template #default>
+                <div class="popover-select">
+                  <div class="select-item">
+                    <SvgIcon name="random" />随机播放
+                  </div>
+                  <div class="select-item">
+                    <SvgIcon name="orderPlay" />顺序播放
+                  </div>
+                  <div class="select-item">
+                    <SvgIcon name="singel" />单曲循环
+                  </div>
+                  <div class="select-item"><SvgIcon name="loop" />列表循环</div>
+                </div>
+              </template>
+            </el-popover>
+
             <SvgIcon name="prev" @click="playPrevSong" />
             <SvgIcon
               v-if="isPause"
@@ -78,12 +143,35 @@ const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
               name="listening"
             />
             <SvgIcon name="next" @click="playNextSong" />
-            <SvgIcon
-              class="volume-icon visible-item"
-              name="volume"
-              ref="buttonRef"
-              v-click-outside="onClickOutside"
-            />
+            <el-popover
+              trigger="click"
+              placement="bottom"
+              popper-class="volume-popup"
+              :width="50"
+              @show="volumePopShow"
+              @hide="volumePopHide"
+            >
+              <template #reference>
+                <SvgIcon
+                  v-show="isIconDisplay"
+                  class="volume-icon"
+                  name="volume"
+                  @click="changePopover"
+                />
+              </template>
+              <template #default>
+                <el-slider
+                  v-model="playVolume"
+                  :show-tooltip="false"
+                  :min="0"
+                  :max="1"
+                  :step="0.01"
+                  vertical
+                  height="100px"
+                />
+                <div class="volume-num">{{ volumeText }}</div>
+              </template>
+            </el-popover>
           </div>
         </div>
       </div>
@@ -99,29 +187,17 @@ const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
       name="upopen"
     />
   </div>
-  <el-popover
-    ref="popoverRef"
-    :virtual-ref="buttonRef"
-    popper-class="volume-popup"
-    trigger="click"
-    :width="50"
-    virtual-triggering
-  >
-    <el-slider
-      v-model="playVolume"
-      :show-tooltip="false"
-      :min="0"
-      :max="1"
-      :step="0.01"
-      vertical
-      height="100px"
-    />
-    <div class="volume-num">{{ volumeText }}</div>
-  </el-popover>
   <PlayList v-model="drawerVisible" title="播放队列" />
 </template>
 
 <style lang="scss">
+.el-popover.order-popup {
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .el-popover.volume-popup {
   min-width: 0;
   display: flex;
@@ -183,6 +259,9 @@ const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
       &:hover {
         color: green;
       }
+      &:focus {
+        outline: none;
+      }
     }
     .center-icon {
       margin: 0 20px;
@@ -225,16 +304,28 @@ const volumeText = computed(() => Math.floor(playVolume.value * 100) + "%");
   height: 18px;
 }
 
-.visible-item {
-  display: none;
-}
-
-.operate-wrapper:hover .visible-item {
-  display: block;
-}
-
 .volume-num {
   margin-top: 20px;
   font-size: 16px;
+}
+
+.popover-select {
+  width: 100%;
+  .select-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 0;
+    cursor: pointer;
+    svg {
+      margin-right: 10px;
+    }
+    &:hover {
+      background-color: var(--website-item-hover);
+    }
+    &:not(:last-child) {
+      border-bottom: 1px solid #dcdfe6;
+    }
+  }
 }
 </style>

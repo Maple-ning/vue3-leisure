@@ -16,4 +16,6 @@ interface AlbumData {
   albumName: string;
   imgUrl: string;
   songList: Arrary<SongObjData>;
+  type?: string;
+  editName: string;
 }
